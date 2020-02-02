@@ -63,6 +63,23 @@ namespace DevIO.Api.Controllers
             return CustomResponse(produtoViewModel);
         }
 
+        [HttpDelete("{id:guid}")]
+        public async Task<ActionResult<ProdutoViewModel>> Excluir(Guid id)
+        {
+            var produto = await ObterProduto(id);
+
+            if (produto == null) return NotFound();
+
+            await _produtoService.Remover(id);
+
+            return CustomResponse(produto);
+        }
+
+        private async Task<ProdutoViewModel> ObterProduto(Guid id)
+        {
+            return _mapper.Map<ProdutoViewModel>(await _produtoRepository.ObterProdutoFornecedor(id));
+        }
+
         private bool UploadArquivo(string arquivo, string imgNome)
         {
             if (string.IsNullOrEmpty(arquivo))
@@ -73,7 +90,7 @@ namespace DevIO.Api.Controllers
 
             var imageDataByteArray = Convert.FromBase64String(arquivo);
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/imagens", imgNome);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/app/demo-webapi/src/assets", imgNome);
 
             if (System.IO.File.Exists(filePath))
             {
